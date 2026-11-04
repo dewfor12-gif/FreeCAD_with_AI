@@ -9,9 +9,12 @@ import urllib.request
 
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide import QtCore, QtWidgets
+try:
+    from PySide6 import QtCore, QtWidgets
+except ImportError:
+    from PySide2 import QtCore, QtWidgets
 
-MODEL = 'gpt-6-luna'
+MODEL = 'gpt-5'
 API_URL = 'https://api.openai.com/v1/responses'
 _ASSISTANT = None
 
