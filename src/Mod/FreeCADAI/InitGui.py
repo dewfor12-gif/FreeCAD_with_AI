@@ -1,28 +1,30 @@
 
 """Application-wide FreeCAD AI assistant startup."""
 
-import FreeCADGui as Gui
-
-try:
-    from PySide6 import QtCore, QtGui, QtWidgets
-except ImportError:
-    from PySide2 import QtCore, QtGui, QtWidgets
-
 
 def show_ai_assistant():
-    """Open the floating assistant on demand."""
+    """Open the floating assistant."""
+    import sys
+    from pathlib import Path
+
+    module_dir = str(Path(__file__).resolve().parent)
+
+    if module_dir not in sys.path:
+        sys.path.insert(0, module_dir)
+
     import assistant
     assistant.show()
 
 
 def install_ai_interface():
-    """Register AI menu and toolbar in FreeCAD."""
-    main_window = Gui.getMainWindow()
+    """Register the AI menu and toolbar."""
+    import FreeCADGui as Gui
+    from PySide6 import QtGui, QtWidgets
 
+    main_window = Gui.getMainWindow()
     if main_window is None:
         return
 
-    # Do not create duplicate menus.
     existing = main_window.findChild(
         QtWidgets.QMenu, "FreeCADAI_Menu"
     )
@@ -37,7 +39,10 @@ def install_ai_interface():
         "Open Floating AI Assistant", main_window
     )
     action.setObjectName("FreeCADAI_Open")
+
+    # Bind the callback directly so it survives startup.
     action.triggered.connect(show_ai_assistant)
+
     ai_menu.addAction(action)
 
     toolbar = main_window.addToolBar("AI Assistant")
@@ -45,4 +50,5 @@ def install_ai_interface():
     toolbar.addAction(action)
 
 
+from PySide6 import QtCore
 QtCore.QTimer.singleShot(0, install_ai_interface)
